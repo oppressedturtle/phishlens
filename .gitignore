@@ -1,0 +1,35 @@
+# Node / Next.js
+node_modules/
+.next/
+out/
+build/
+dist/
+coverage/
+playwright-report/
+test-results/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+*.egg-info/
+
+# Env & secrets
+.env
+.env*.local
+.env.production
+
+# ML artifacts
+*.joblib
+*.pkl
+models/*.bin
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.log
