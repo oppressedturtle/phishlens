@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: 248 250 252;
+  --fg: 15 23 42;
+  --muted: 100 116 139;
+  --card: 255 255 255;
+  --border: 226 232 240;
+}
+
+.dark {
+  --bg: 2 6 23;
+  --fg: 241 245 249;
+  --muted: 148 163 184;
+  --card: 15 23 42;
+  --border: 30 41 59;
+}
+
+@layer base {
+  body {
+    background-color: rgb(var(--bg));
+    color: rgb(var(--fg));
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer utilities {
+  .bg-card {
+    background-color: rgb(var(--card));
+  }
+  .text-fg {
+    color: rgb(var(--fg));
+  }
+  .text-muted {
+    color: rgb(var(--muted));
+  }
+  .border-app {
+    border-color: rgb(var(--border));
+  }
+}

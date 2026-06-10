@@ -9,7 +9,7 @@
 Each roadmap item is a self-contained increment the coder agent completes in one session, then commits + pushes. Work in order; skip ahead only if blocked.
 
 ## Phase 0 — Foundation
-- [ ] Next.js + TypeScript + Tailwind app, base layout, ESLint/Prettier
+- [x] Next.js + TypeScript + Tailwind app, base layout, ESLint/Prettier
 - [ ] Python FastAPI analyzer service skeleton (`/analyze`), typed schemas (pydantic)
 - [ ] Postgres + Prisma (submissions, verdicts, signals), Redis (cache/rate limit)
 - [ ] Docker Compose (web + analyzer + postgres + redis), Dockerfiles, CI stub
