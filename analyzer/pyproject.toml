@@ -1,0 +1,16 @@
+[project]
+name = "phishlens-analyzer"
+version = "0.1.0"
+description = "PhishLens analyzer microservice — scores phishing risk for URLs and emails."
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
