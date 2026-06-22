@@ -35,4 +35,4 @@ models/*.bin
 *.log
 
 # Prisma generated client
-src/generated/
+**/src/generated/
