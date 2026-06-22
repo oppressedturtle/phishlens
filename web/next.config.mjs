@@ -2,6 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Emit a self-contained server bundle for a small production Docker image.
+  output: "standalone",
 };
 
 export default nextConfig;
