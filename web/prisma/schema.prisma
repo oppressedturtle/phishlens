@@ -1,0 +1,124 @@
+// PhishLens — Prisma schema
+// A Submission (a URL or raw email) is analyzed into many Signals and resolves
+// to exactly one Verdict (risk score + level + explanation).
+//
+// This is the Phase 0 foundation schema — the full analysis domain is modelled
+// here so later phases (signal collectors, heuristics, ML, AI explanation) only
+// add fields/relations rather than introduce raw new models.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum SubmissionType {
+  URL
+  EMAIL
+}
+
+enum SubmissionStatus {
+  PENDING
+  ANALYZING
+  COMPLETE
+  FAILED
+}
+
+enum RiskLevel {
+  BENIGN
+  SUSPICIOUS
+  PHISHING
+}
+
+/// Broad category a signal belongs to — drives grouping in the verdict UI.
+enum SignalCategory {
+  LEXICAL
+  DNS
+  TLS
+  REDIRECT
+  CONTENT
+  EMAIL_HEADER
+  REPUTATION
+}
+
+/// How strongly a signal contributes to a phishing verdict.
+enum SignalSeverity {
+  INFO
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+/// A single analysis request: a URL or a raw email submitted for scoring.
+model Submission {
+  id            String           @id @default(cuid())
+  type          SubmissionType
+  /// Raw user input (URL string or full .eml source). Never rendered as HTML.
+  input         String           @db.Text
+  /// Canonicalised URL for URL submissions (normalized scheme/host/path).
+  normalizedUrl String?
+  status        SubmissionStatus @default(PENDING)
+  /// SHA-256 of the submitter IP — for rate limiting / abuse without storing PII.
+  ipHash        String?
+  /// Free-form error context when status = FAILED.
+  error         String?          @db.Text
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  verdict Verdict?
+  signals Signal[]
+
+  @@index([ipHash, createdAt])
+  @@index([status, createdAt])
+}
+
+/// The final risk assessment for a submission. One-to-one with Submission.
+model Verdict {
+  id           String    @id @default(cuid())
+  submissionId String    @unique
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  /// Calibrated phishing probability in [0, 1].
+  score        Float
+  level        RiskLevel
+  /// Model confidence in [0, 1] (separate from the score itself).
+  confidence   Float     @default(0)
+  /// Plain-language AI explanation (Phase 5). Null until generated.
+  explanation  String?   @db.Text
+  /// Classifier version that produced this verdict (Phase 4).
+  modelVersion String?
+  createdAt    DateTime  @default(now())
+
+  @@index([level, createdAt])
+}
+
+/// One evidence item gathered during analysis. Many per submission.
+model Signal {
+  id           String         @id @default(cuid())
+  submissionId String
+  submission   Submission     @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  category     SignalCategory
+  severity     SignalSeverity @default(INFO)
+  /// Machine key, e.g. "domain_age_days", "punycode_detected", "spf_result".
+  key          String
+  /// Human-readable value/observation for this signal.
+  value        String         @db.Text
+  /// Contribution weight toward the score (model/heuristic dependent).
+  weight       Float          @default(0)
+  createdAt    DateTime       @default(now())
+
+  @@index([submissionId, category])
+}

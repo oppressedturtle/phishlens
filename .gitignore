@@ -33,3 +33,6 @@ models/*.bin
 .vscode/
 *.swp
 *.log
+
+# Prisma generated client
+src/generated/

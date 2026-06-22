@@ -1,5 +1,29 @@
 # PhishLens — Progress Log
 
+## 2026-06-22 — Phase 0 item 3: Postgres + Prisma + Redis foundation (web)
+
+- Added the data layer to `web/` (Prisma 7.8, driver-adapter `@prisma/adapter-pg`):
+  - **`prisma/schema.prisma`** — full analysis domain modelled up front so later phases only
+    add fields/relations: `Submission` (URL|EMAIL input, normalizedUrl, status, ipHash for
+    abuse control, error) → one `Verdict` (calibrated score 0–1, RiskLevel, confidence,
+    AI explanation, modelVersion) + many `Signal` (category/severity/key/value/weight).
+    Enums: SubmissionType, SubmissionStatus, RiskLevel, SignalCategory, SignalSeverity.
+    Cascade deletes + hot-path composite indexes (`ipHash,createdAt`; `status,createdAt`;
+    `submissionId,category`).
+  - **`prisma.config.ts`** — Prisma 7 config; DATABASE_URL provided here (not in schema).
+  - **`src/lib/db.ts`** — PrismaClient singleton via pg Pool + PrismaPg adapter (hot-reload safe).
+  - **`src/lib/redis.ts`** — ioredis singleton (globalThis pattern) + `ping()` healthcheck helper.
+  - **`src/lib/env.ts`** — Zod env validation (DATABASE_URL, REDIS_URL, ANALYZER_URL, NODE_ENV);
+    throws a descriptive error at startup on misconfig. All env reads go through this module.
+  - **`src/lib/rate-limit.ts`** — atomic Redis sliding-window limiter (single Lua script, no
+    TOCTOU), fails open on Redis outage. + 4 unit tests.
+  - `.env.example` (committed) + local `.env` (gitignored); generated client gitignored.
+  - npm scripts: `db:generate`, `db:migrate`, `db:studio`.
+- Verified: `prisma validate` ✓, `prisma generate` ✓, `tsc --noEmit` ✓, `vitest` 10/10 ✓,
+  `next lint` ✓ (0 warnings). `prisma migrate` deferred (no live DB until Compose lands).
+- **Roadmap:** Phase 0 — 3/5.
+- **Next:** Phase 0 item 4 — Docker Compose (web + analyzer + postgres + redis), Dockerfiles, CI stub.
+
 ## 2026-06-08 — Project kickoff
 - Added to the autonomous build pipeline (security project, builds in rotation).
 - Defined 8-phase roadmap; defensive framing with SSRF-guarded fetching as a first-class concern.
