@@ -12,7 +12,7 @@ Each roadmap item is a self-contained increment the coder agent completes in one
 - [x] Next.js + TypeScript + Tailwind app, base layout, ESLint/Prettier
 - [x] Python FastAPI analyzer service skeleton (`/analyze`), typed schemas (pydantic)
 - [x] Postgres + Prisma (submissions, verdicts, signals), Redis (cache/rate limit)
-- [ ] Docker Compose (web + analyzer + postgres + redis), Dockerfiles, CI stub
+- [x] Docker Compose (web + analyzer + postgres + redis), Dockerfiles, CI stub
 - [ ] Root README, MIT LICENSE, .gitignore
 
 ## Phase 1 — URL signal collectors (SSRF-guarded)

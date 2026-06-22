@@ -1,5 +1,28 @@
 # PhishLens — Progress Log
 
+## 2026-06-22 — Phase 0 item 4: Docker Compose + Dockerfiles + CI stub
+
+- **`analyzer/Dockerfile`** — multi-stage Python 3.12-slim: builder stage compiles wheels,
+  runtime stage installs offline as a non-root `app` user. `PYTHONUNBUFFERED`, EXPOSE 8000,
+  HEALTHCHECK hitting `/health`, runs uvicorn. `+ .dockerignore`.
+- **`web/Dockerfile`** — multi-stage Next.js standalone build: `deps` (npm ci) → `builder`
+  (`prisma generate` + `next build`) → minimal non-root `runtime` copying only `.next/standalone`
+  + `.next/static`. Added `output: "standalone"` to `next.config.mjs`. openssl installed for
+  Prisma. HEALTHCHECK on `/`. `+ .dockerignore`.
+- **`docker-compose.yml`** (repo root) — `web` + `analyzer` + `postgres:16-alpine` +
+  `redis:7-alpine`. Healthchecks on every service; `web` waits on postgres/redis healthy +
+  analyzer started; service-name DNS wiring (`postgres`, `redis`, `analyzer`); named volumes;
+  host ports overridable via env. `+ .env.example`.
+- **`.github/workflows/ci.yml`** — three jobs: **web** (npm ci → prisma generate → lint →
+  typecheck → format → test → build), **analyzer** (ruff + pytest), **docker** (buildx builds
+  both images with GHA cache). Concurrency cancel-in-progress.
+- **Verified locally:** `docker compose config` valid; both images build clean; full stack
+  `docker compose up --wait` → all 4 containers **healthy**; `web` returns HTTP 200, analyzer
+  `/health` returns ok. (DB migration still deferred until first schema-touching feature.)
+- **Roadmap:** Phase 0 — 4/5.
+- **Next:** Phase 0 item 5 — root README + MIT LICENSE + .gitignore polish (LICENSE/.gitignore
+  already present; finalize root README with architecture + run instructions) → closes Phase 0.
+
 ## 2026-06-22 — Phase 0 item 3: Postgres + Prisma + Redis foundation (web)
 
 - Added the data layer to `web/` (Prisma 7.8, driver-adapter `@prisma/adapter-pg`):
