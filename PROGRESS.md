@@ -1,5 +1,23 @@
 # PhishLens — Progress Log
 
+## 2026-06-23 — Phase 0 item 5: finalized root README → PHASE 0 COMPLETE
+
+Expanded the thin root README into a portfolio-quality landing doc (LICENSE + .gitignore were
+already present). Added:
+
+- **Architecture diagram** (ASCII) showing the web ↔ analyzer split and the Postgres/Redis
+  backing services with their roles.
+- **Quick start** — one-command `docker compose up --build --wait`, plus a service/port table
+  (web :3000, analyzer :8000, postgres :5432, redis :6379) noting the `*_PORT` overrides.
+- **Local development** — accurate per-service commands (web npm scripts; analyzer
+  `pip install -r requirements-dev.txt` + uvicorn `app.main:app`), verified against the actual
+  `web/package.json` scripts and `analyzer/requirements-dev.txt`.
+- **Repository layout** and a CI summary.
+
+Phase 0 (Foundation) is now fully checked. **Next:** Phase 1 — URL signal collectors with
+SSRF-guarded URL normalize/parse (block private/internal IPs + cloud metadata endpoints).
+
+
 ## 2026-06-22 — Phase 0 item 4: Docker Compose + Dockerfiles + CI stub
 
 - **`analyzer/Dockerfile`** — multi-stage Python 3.12-slim: builder stage compiles wheels,

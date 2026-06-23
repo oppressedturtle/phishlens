@@ -13,7 +13,7 @@ Each roadmap item is a self-contained increment the coder agent completes in one
 - [x] Python FastAPI analyzer service skeleton (`/analyze`), typed schemas (pydantic)
 - [x] Postgres + Prisma (submissions, verdicts, signals), Redis (cache/rate limit)
 - [x] Docker Compose (web + analyzer + postgres + redis), Dockerfiles, CI stub
-- [ ] Root README, MIT LICENSE, .gitignore
+- [x] Root README, MIT LICENSE, .gitignore
 
 ## Phase 1 — URL signal collectors (SSRF-guarded)
 - [ ] URL normalize/parse; block private/internal IPs + metadata endpoints (SSRF defense)
