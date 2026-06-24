@@ -6,8 +6,8 @@
  * are emitted (not thrown) — callers must treat failed ops as non-fatal and
  * degrade gracefully (cache miss, fail-open rate limit where appropriate).
  */
-import Redis from "ioredis";
-import { env } from "./env";
+import Redis from 'ioredis';
+import { env } from './env';
 
 const globalForRedis = globalThis as unknown as { redis?: Redis };
 
@@ -18,8 +18,8 @@ function createRedisClient(): Redis {
     lazyConnect: false,
   });
 
-  client.on("error", (err: Error) => {
-    console.error("[redis] connection error", err.message);
+  client.on('error', (err: Error) => {
+    console.error('[redis] connection error', err.message);
   });
 
   return client;
@@ -27,7 +27,7 @@ function createRedisClient(): Redis {
 
 export const redis: Redis = globalForRedis.redis ?? createRedisClient();
 
-if (env.NODE_ENV !== "production") {
+if (env.NODE_ENV !== 'production') {
   globalForRedis.redis = redis;
 }
 

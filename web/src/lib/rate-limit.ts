@@ -5,7 +5,7 @@
  * so concurrent requests can't race past the limit (no TOCTOU window). Each
  * caller key gets its own sorted set of request timestamps.
  */
-import { redis } from "./redis";
+import { redis } from './redis';
 
 export interface RateLimitResult {
   success: boolean;

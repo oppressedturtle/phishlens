@@ -28,6 +28,12 @@ decimal/hex IP literals all rejected; a public literal allowed; and DNS monkeypa
 **Roadmap:** Phase 1 — 1/4 (item 1 ✅). **Next:** item 2 — domain age (WHOIS/RDAP), DNS records,
 ASN/hosting lookup, built on top of this guard.
 
+**Also — fixed long-standing red CI:** the web job's `npm run format` step had been failing since
+Phase 0 item 4 (no `.prettierignore`, so the **generated Prisma client** was being format-checked,
+plus several hand-written files violated the style). Added `web/.prettierignore` (excludes
+`src/generated/`) and ran `prettier --write` across `web/src`. Web job now clean: lint ✓ ·
+typecheck ✓ · format ✓ · vitest 10/10 ✓ · `next build` ✓.
+
 ## 2026-06-23 — Phase 0 item 5: finalized root README → PHASE 0 COMPLETE
 
 Expanded the thin root README into a portfolio-quality landing doc (LICENSE + .gitignore were

@@ -31,10 +31,7 @@ export default function HomePage() {
       </section>
 
       <section className="border-app bg-card mx-auto max-w-xl rounded-2xl border p-5 shadow-sm">
-        <label
-          htmlFor="submission"
-          className="text-sm font-medium text-fg"
-        >
+        <label htmlFor="submission" className="text-fg text-sm font-medium">
           URL or raw email
         </label>
         <textarea
@@ -43,7 +40,7 @@ export default function HomePage() {
           rows={4}
           disabled
           placeholder="https://secure-login.example.com/verify  —  or paste an entire .eml"
-          className="border-app mt-2 w-full resize-none rounded-lg border bg-transparent px-3 py-2 text-sm text-fg placeholder:text-muted focus:border-brand-500 focus:outline-none"
+          className="border-app text-fg placeholder:text-muted mt-2 w-full resize-none rounded-lg border bg-transparent px-3 py-2 text-sm focus:border-brand-500 focus:outline-none"
         />
         <div className="mt-3 flex items-center justify-between">
           <span className="text-muted text-xs">

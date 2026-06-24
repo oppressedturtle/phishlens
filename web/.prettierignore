@@ -1,0 +1,7 @@
+# Generated Prisma client — never hand-formatted.
+src/generated/
+
+# Build output / deps
+.next/
+node_modules/
+coverage/
