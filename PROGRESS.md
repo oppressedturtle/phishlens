@@ -1,5 +1,33 @@
 # PhishLens — Progress Log
 
+## 2026-06-24 — Phase 1 item 1: URL normalize/parse + SSRF guard
+
+Built the **SSRF chokepoint** every later URL collector (domain age, TLS inspection,
+redirect-follow) must pass through before any network egress — the top-listed risk in the
+roadmap's security phase. New `analyzer/app/url_guard.py` (pure stdlib, no new deps):
+
+- **`normalize_url()`** — scheme allowlist (**http/https only** — no file:/gopher:/data:/etc.),
+  bare-host → `http://` coercion, host lowercasing, **IDNA encoding** (so unicode/IDN homographs
+  are resolved to their real ASCII host before any check), default-port fill, `origin` helper.
+- **`assert_public_url()`** — the guard. Blocks loopback, RFC1918 private, link-local (incl. the
+  **`169.254.169.254` cloud-metadata** range), CGNAT/shared, reserved, multicast and unspecified
+  addresses for **both IPv4 and IPv6** (unwrapping IPv4-mapped IPv6 like `::ffff:127.0.0.1`).
+- **Numeric-host unmasking** — decimal/hex/octal IPv4 forms (`http://2130706433`, `http://0x7f.0.0.1`
+  → `127.0.0.1`) are coerced to real IPs so they can't dodge the literal-IP checks.
+- **Resolve-and-validate** — resolves the host and validates **every** answer, rejecting if *any*
+  resolves internal (DNS-rebinding defense), and returns the vetted IPs so a caller can pin them.
+- Hostname blocklist (`localhost`, `metadata`, `metadata.google.internal`) as defense in depth.
+
+**Tests — `tests/test_url_guard.py` (25 cases):** normalization (scheme/port/IDNA/bad-input), and
+the security-critical SSRF matrix — loopback, private, metadata, IPv6 link-local, IPv4-mapped IPv6,
+decimal/hex IP literals all rejected; a public literal allowed; and DNS monkeypatched to prove the
+**rebinding** case (public + internal answer) and unresolvable hosts both reject.
+
+**Verification:** `ruff check .` ✓ · `pytest` **32/32** (25 new) ✓. (Hermetic — DNS mocked.)
+
+**Roadmap:** Phase 1 — 1/4 (item 1 ✅). **Next:** item 2 — domain age (WHOIS/RDAP), DNS records,
+ASN/hosting lookup, built on top of this guard.
+
 ## 2026-06-23 — Phase 0 item 5: finalized root README → PHASE 0 COMPLETE
 
 Expanded the thin root README into a portfolio-quality landing doc (LICENSE + .gitignore were

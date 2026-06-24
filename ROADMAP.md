@@ -16,7 +16,7 @@ Each roadmap item is a self-contained increment the coder agent completes in one
 - [x] Root README, MIT LICENSE, .gitignore
 
 ## Phase 1 — URL signal collectors (SSRF-guarded)
-- [ ] URL normalize/parse; block private/internal IPs + metadata endpoints (SSRF defense)
+- [x] URL normalize/parse; block private/internal IPs + metadata endpoints (SSRF defense)
 - [ ] Domain age (WHOIS/RDAP), DNS records, ASN/hosting lookup
 - [ ] TLS/SSL certificate inspection (issuer, age, SAN mismatch)
 - [ ] Redirect-chain follow (capped, sandboxed, no JS), final-destination analysis
