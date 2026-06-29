@@ -1,5 +1,33 @@
 # PhishLens — Progress Log
 
+## 2026-06-29 (b) — Phase 1 item 3: TLS/SSL certificate inspection
+
+Built **`analyzer/app/tls_intel.py`** — inspects the certificate served on a host's TLS port and
+turns it into phishing signals. Same shape as the domain collectors: pure parsing/scoring with the
+network hidden behind an injectable `TlsFetcher` Protocol, so everything is offline-testable.
+
+- **Parsing** (`parse_peer_cert`) works on the `ssl.SSLSocket.getpeercert()` dict shape — subject/
+  issuer CN + org, `notBefore`/`notAfter` (OpenSSL date parser → tz-aware UTC), DNS SANs, and a
+  self-signed check (subject == issuer).
+- **Hostname/SAN matching** (`host_matches_cert`) is RFC 6125-style with single-label `*` wildcard
+  support (a wildcard matches one label, never the apex or a dotted prefix), falling back to CN when
+  no SANs are present.
+- **Signals** (`tls_signals`): `tls_expired` / `tls_not_yet_valid` / `tls_self_signed` /
+  `tls_san_mismatch` (all `malicious`), `tls_recently_issued` (info, <7d), `tls_valid` (benign, only
+  when nothing flags), and `tls_unavailable` (info) when no cert could be fetched (HTTP-only/refused).
+- **Default fetcher** `StdlibTlsFetcher` uses only the standard library `ssl` + `socket` (bounded
+  timeout) — **no new dependency**. Verify-failures surface as a reason string; capturing the raw
+  cert on verify-failure for richer reporting is left for a later increment.
+
+**Tests (`tests/test_tls_intel.py`, 14):** date parsing, field extraction, self-signed detection,
+exact + wildcard SAN matching (incl. nested-subdomain rejection), CN fallback, and one case per
+signal, plus collector orchestration (cert present / fetch error). **ruff clean; pytest 65/65**
+(14 new). No code wired into `/analyze` yet.
+
+**Roadmap:** Phase 1 now 3/4. **NEXT:** Phase 1 item 4 — redirect-chain follow (capped, sandboxed,
+no JS), then wire domain + TLS + redirect collectors into the SSRF-guarded `/analyze` flow.
+
+
 ## 2026-06-29 — Phase 1 item 2: domain age (RDAP) + DNS records + ASN/hosting
 
 Built the **domain-intelligence collectors** (`analyzer/app/domain_intel.py`) — three classic

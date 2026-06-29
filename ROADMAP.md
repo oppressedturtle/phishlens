@@ -18,7 +18,7 @@ Each roadmap item is a self-contained increment the coder agent completes in one
 ## Phase 1 — URL signal collectors (SSRF-guarded)
 - [x] URL normalize/parse; block private/internal IPs + metadata endpoints (SSRF defense)
 - [x] Domain age (WHOIS/RDAP), DNS records, ASN/hosting lookup
-- [ ] TLS/SSL certificate inspection (issuer, age, SAN mismatch)
+- [x] TLS/SSL certificate inspection (issuer, age, SAN mismatch) _(`app/tls_intel.py`: parses the served cert, flags expired/not-yet-valid, self-signed, hostname/SAN mismatch (wildcard-aware), freshly-issued; injectable `TlsFetcher` Protocol, stdlib-`ssl` default, no new deps; 14 offline tests)_
 - [ ] Redirect-chain follow (capped, sandboxed, no JS), final-destination analysis
 
 ## Phase 2 — URL/content heuristics
