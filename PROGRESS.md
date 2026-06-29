@@ -1,5 +1,33 @@
 # PhishLens — Progress Log
 
+## 2026-06-29 — Phase 1 item 2: domain age (RDAP) + DNS records + ASN/hosting
+
+Built the **domain-intelligence collectors** (`analyzer/app/domain_intel.py`) — three classic
+phishing signals gathered from a submitted URL's host:
+
+- **Domain age via RDAP** (the JSON successor to WHOIS): parses the `registration` event +
+  registrar from an RDAP domain object and computes age in days (clamped ≥ 0). Default client
+  uses the `rdap.org` redirector (follows to the authoritative registry).
+- **DNS records** (A/AAAA/MX/NS/TXT/CNAME): per-type lookup that **degrades to empty on failure**
+  rather than aborting; TXT chunks joined, MX/CNAME trailing dots stripped.
+- **ASN / hosting via Team Cymru** DNS origin lookup (reversed-octet `origin.asn.cymru.com` →
+  `AS<n>.asn.cymru.com`), parsing the pipe-delimited ASN / prefix / country / registry / AS-name.
+- **`registrable_domain`** eTLD+1 helper with a small multi-label-suffix set (co.uk, com.au, …).
+- **`domain_signals`** turns intel into Signal-shaped dicts: `young_domain` (<30d, malicious),
+  `new_domain` (<90d), `established_domain` (benign), `no_mx`, `domain_age_unknown`, `hosting_asn`.
+- **`collect_domain_intel`** orchestrates all three, degrading per-collector on failure.
+
+**Design:** all network access is behind injectable `Resolver` / `RdapClient` Protocols, with
+default impls (`DnspythonResolver`, `HttpxRdapClient`) that **import their deps lazily**, so the
+module imports and the whole test suite run offline. Added `dnspython==2.7.0` + `httpx==0.27.2`
+to runtime `requirements.txt` for the Docker/CI environment.
+
+**Verification (all green, offline):** `ruff check` ✓ · **pytest 51/51** (19 new, all network faked) ✓.
+
+**Roadmap:** Phase 1 — 2/4. **Next:** Phase 1 item 3 — TLS/SSL certificate inspection (issuer,
+age, SAN mismatch), then wiring these collectors into the live SSRF-guarded `/analyze` flow.
+
+
 ## 2026-06-24 — Phase 1 item 1: URL normalize/parse + SSRF guard
 
 Built the **SSRF chokepoint** every later URL collector (domain age, TLS inspection,
