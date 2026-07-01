@@ -19,7 +19,7 @@ Each roadmap item is a self-contained increment the coder agent completes in one
 - [x] URL normalize/parse; block private/internal IPs + metadata endpoints (SSRF defense)
 - [x] Domain age (WHOIS/RDAP), DNS records, ASN/hosting lookup
 - [x] TLS/SSL certificate inspection (issuer, age, SAN mismatch) _(`app/tls_intel.py`: parses the served cert, flags expired/not-yet-valid, self-signed, hostname/SAN mismatch (wildcard-aware), freshly-issued; injectable `TlsFetcher` Protocol, stdlib-`ssl` default, no new deps; 14 offline tests)_
-- [ ] Redirect-chain follow (capped, sandboxed, no JS), final-destination analysis
+- [x] Redirect-chain follow (capped, sandboxed, no JS), final-destination analysis _(`app/redirect_intel.py`: SSRF-guarded **per hop** (every `Location` re-validated before fetch), capped at 10, loop-safe, HEAD-only so no body is read/rendered/executed; resolves relative Locations, pins the guard-vetted IP; signals for blocked/excessive/loop/scheme-downgrade/long-chain/cross-host/none; injectable `HopFetcher`+guard, stdlib default, 12 offline tests)_
 
 ## Phase 2 — URL/content heuristics
 - [ ] Lexical features: punycode/IDN homographs, `@` tricks, length, entropy, sub-domain depth, TLD risk

@@ -1,5 +1,35 @@
 # PhishLens — Progress Log
 
+## 2026-07-01 — Phase 1 item 4: redirect-chain follow (SSRF-guarded, capped, no JS)
+
+Built **`analyzer/app/redirect_intel.py`** — follows a submitted URL's redirect chain to its final
+destination. This completes Phase 1's URL signal collectors. Following redirects is itself an SSRF
+primitive (a 302 to `169.254.169.254` would make *us* fetch cloud metadata), so safety is the point:
+
+- **SSRF-guarded per hop.** Every URL — the submitted one and every `Location` — passes through the
+  real `assert_public_url` guard *before* any network call, so a redirect can never steer us at a
+  private/internal/metadata address. A blocked hop halts the chain and becomes a `malicious` signal.
+- **Capped** at 10 hops (`MAX_REDIRECTS`), **loop-safe** (revisiting a URL stops), and **sandboxed**:
+  it issues a `HEAD` and reads only the status line + `Location` header — no body is ever read,
+  rendered, or executed (no JS). Relative Locations are resolved; the guard-vetted IP is pinned
+  (DNS-rebinding defense) and the default fetcher verifies TLS against the real hostname.
+- **Signals:** `redirect_blocked` (SSRF hop refused), `redirect_excessive` (cap hit),
+  `redirect_loop`, `redirect_scheme_downgrade` (https→http), `redirect_long_chain` (≥3),
+  `redirect_cross_host`, `redirect_error`, and `redirect_none` (clean direct resolve).
+- Same architecture as the other collectors: pure following logic with the network behind an
+  injectable `HopFetcher` Protocol (+ injectable guard), stdlib default fetcher, no new deps.
+
+**Tests (`test_redirect_intel.py`, 12 cases):** direct-200, single + relative redirect, query-string
+preservation, long chain, cap-exceeded, loop, **real-guard SSRF block on a metadata redirect** (and
+asserts the malicious hop is never fetched), scheme downgrade, fetcher-error halt. All offline.
+
+**Verification (all green):** `ruff check` ✓ · **pytest 77/77** (12 new) ✓.
+
+**Roadmap:** Phase 1 ✅ **complete** (all 4 URL collectors done). **Next:** Phase 2 item 1 — lexical
+URL heuristics (punycode/IDN homographs, `@` tricks, length, entropy, sub-domain depth, TLD risk),
+then wire the domain/TLS/redirect collectors into the SSRF-guarded `/analyze` flow.
+
+
 ## 2026-06-29 (b) — Phase 1 item 3: TLS/SSL certificate inspection
 
 Built **`analyzer/app/tls_intel.py`** — inspects the certificate served on a host's TLS port and
